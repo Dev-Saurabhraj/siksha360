@@ -9,7 +9,6 @@ import '../utils/icons.dart';
 import '../widgets/app_brand_bar.dart';
 import '../widgets/grid_background.dart';
 import '../widgets/primary_action_button.dart';
-import 'payment_details_screen.dart';
 
 class PaymentSuccessScreen extends StatefulWidget {
   const PaymentSuccessScreen({
