@@ -52,7 +52,7 @@ Before building or running the app locally, make sure you have:
 1. Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Dev-Saurabhraj/siksha360
 cd siksha360
 ```
 
