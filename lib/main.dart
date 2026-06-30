@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'data/mock_fee_data.dart';
-import 'screens/home_screen.dart';
+import 'app_router.dart';
 
 void main() {
   runApp(const Siksha360App());
@@ -15,7 +14,7 @@ class Siksha360App extends StatelessWidget {
     const ink = Color(0xFF17181C);
     const paper = Color(0xFFFAFAF8);
 
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Siksha360',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -52,7 +51,7 @@ class Siksha360App extends StatelessWidget {
           ),
         ),
       ),
-      home: const HomeScreen(fee: mockPendingFee),
+      routerConfig: appRouter,
     );
   }
 }

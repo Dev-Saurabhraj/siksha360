@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:siksha360/models/fee_summary.dart';
 import 'package:siksha360/utils/box_decoration.dart';
+
 class BillBreakdownCard extends StatelessWidget {
   const BillBreakdownCard({
     required this.fee,
@@ -56,7 +57,7 @@ class BillBreakdownCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _BillLine(label: 'Student', value: fee.childName),
-          _BillLine(label: 'Receiver', value: fee.receiverName),
+          _BillLine(label: 'Receiver type', value: fee.receiverType),
           _BillLine(label: 'Fee category', value: fee.dueLabel),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
@@ -147,4 +148,3 @@ class _BillLine extends StatelessWidget {
     );
   }
 }
-

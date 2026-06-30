@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../models/fee_summary.dart';
+import '../models/payment_method.dart';
+import '../models/payment_receipt.dart';
 import '../widgets/app_brand_bar.dart';
 import '../widgets/grid_background.dart';
 import '../widgets/primary_action_button.dart';
@@ -9,14 +12,20 @@ import 'payment_details_screen.dart';
 class PaymentSuccessScreen extends StatefulWidget {
   const PaymentSuccessScreen({
     super.key,
-    required this.fee,
-    required this.method,
-    required this.transactionId,
-  });
+    this.fee,
+    this.method,
+    this.transactionId,
+    this.receipt,
+  }) : assert(fee != null || receipt != null, 'Provide fee or receipt');
 
-  final FeeSummary fee;
-  final PaymentMethod method;
-  final String transactionId;
+  final FeeSummary? fee;
+  final PaymentMethod? method;
+  final String? transactionId;
+  final PaymentReceipt? receipt;
+
+  FeeSummary get resolvedFee => receipt?.fee ?? fee!;
+  PaymentMethod get resolvedMethod => receipt?.method ?? method!;
+  String get resolvedTransactionId => receipt?.transactionId ?? transactionId!;
 
   @override
   State<PaymentSuccessScreen> createState() => _PaymentSuccessScreenState();
@@ -37,23 +46,25 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
       duration: const Duration(milliseconds: 900),
     )..forward();
 
-    _checkScale = TweenSequence<double>([
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 0.2, end: 1.18)
-            .chain(CurveTween(curve: Curves.easeOutBack)),
-        weight: 70,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 1.18, end: 1)
-            .chain(CurveTween(curve: Curves.easeOutCubic)),
-        weight: 30,
-      ),
-    ]).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0, 0.78),
-      ),
-    );
+    _checkScale =
+        TweenSequence<double>([
+          TweenSequenceItem(
+            tween: Tween<double>(
+              begin: 0.2,
+              end: 1.18,
+            ).chain(CurveTween(curve: Curves.easeOutBack)),
+            weight: 70,
+          ),
+          TweenSequenceItem(
+            tween: Tween<double>(
+              begin: 1.18,
+              end: 1,
+            ).chain(CurveTween(curve: Curves.easeOutCubic)),
+            weight: 30,
+          ),
+        ]).animate(
+          CurvedAnimation(parent: _controller, curve: const Interval(0, 0.78)),
+        );
 
     _checkTurn = Tween<double>(begin: -0.06, end: 0).animate(
       CurvedAnimation(
@@ -76,9 +87,9 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
 
   @override
   Widget build(BuildContext context) {
-    final fee = widget.fee;
-    final method = widget.method;
-    final transactionId = widget.transactionId;
+    final fee = widget.resolvedFee;
+    final method = widget.resolvedMethod;
+    final transactionId = widget.resolvedTransactionId;
 
     return Scaffold(
       appBar: const AppBrandBar(),
@@ -169,9 +180,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                               label: 'Back to Home',
                               icon: Icons.home_outlined,
                               onPressed: () {
-                                Navigator.of(
-                                  context,
-                                ).popUntil((route) => route.isFirst);
+                                context.go('/');
                               },
                             ),
                           ],

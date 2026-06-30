@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:siksha360/models/fee_summary.dart';
+
 class HeaderCard extends StatelessWidget {
   const HeaderCard({required this.fee});
 
@@ -34,6 +35,16 @@ class HeaderCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
+          const Text(
+            'Receiver',
+            style: TextStyle(
+              color: Color(0xFFBEC6D2),
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: 6),
           Text(
             fee.receiverName,
             style: const TextStyle(
@@ -91,4 +102,3 @@ class _HeaderChip extends StatelessWidget {
     );
   }
 }
-

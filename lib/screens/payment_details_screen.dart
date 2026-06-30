@@ -1,24 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:siksha360/utils/box_decoration.dart';
 import 'package:siksha360/widgets/bill_breakdown_card.dart';
 import 'package:siksha360/widgets/header_card.dart';
 import 'package:siksha360/widgets/processing_overlay.dart';
 import '../models/fee_summary.dart';
+import '../models/payment_method.dart';
+import '../models/payment_receipt.dart';
 import '../widgets/app_brand_bar.dart';
 import '../widgets/grid_background.dart';
 import '../widgets/primary_action_button.dart';
 import 'payment_success_screen.dart';
-
-enum PaymentMethod {
-  creditCard('Card', Icons.credit_card),
-  upi('UPI', Icons.qr_code_2),
-  netBanking('Net Banking', Icons.account_balance_outlined);
-
-  const PaymentMethod(this.label, this.icon);
-
-  final String label;
-  final IconData icon;
-}
 
 class PaymentDetailsScreen extends StatefulWidget {
   const PaymentDetailsScreen({super.key, required this.fee});
@@ -77,32 +69,12 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
       _isProcessing = false;
     });
 
-    Navigator.of(context).push(
-      PageRouteBuilder<void>(
-        transitionDuration: const Duration(milliseconds: 520),
-        reverseTransitionDuration: const Duration(milliseconds: 320),
-        pageBuilder: (_, animation, _) => PaymentSuccessScreen(
-          fee: widget.fee,
-          method: selectedMethod,
-          transactionId: 'TXN123456789',
-        ),
-        transitionsBuilder: (_, animation, _, child) {
-          final curved = CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutCubic,
-          );
-
-          return FadeTransition(
-            opacity: curved,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0, 0.08),
-                end: Offset.zero,
-              ).animate(curved),
-              child: child,
-            ),
-          );
-        },
+    context.push(
+      '/success',
+      extra: PaymentReceipt(
+        fee: widget.fee,
+        method: selectedMethod,
+        transactionId: 'TXN123456789',
       ),
     );
   }
@@ -126,6 +98,15 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        const Text(
+                          'Payment Details',
+                          style: TextStyle(
+                            color: Color(0xFF17181C),
+                            fontSize: 24,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
                         HeaderCard(fee: fee),
                         const SizedBox(height: 14),
                         BillBreakdownCard(
@@ -181,8 +162,7 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                                     ? const _MethodHint()
                                     : Padding(
                                         key: ValueKey(_selectedMethod),
-                                        padding:
-                                            const EdgeInsets.only(top: 16),
+                                        padding: const EdgeInsets.only(top: 16),
                                         child: _PaymentMethodDetails(
                                           method: _selectedMethod!,
                                           selectedUpiApp: _selectedUpiApp,
@@ -214,7 +194,7 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                               PrimaryActionButton(
                                 label: _isProcessing
                                     ? 'Processing...'
-                                    : 'Pay ${_formatAmount(_totalPayable)}',
+                                    : 'Proceed to Pay',
                                 icon: _isProcessing
                                     ? Icons.hourglass_top
                                     : Icons.lock_outline,
@@ -257,24 +237,24 @@ class _PaymentMethodDetails extends StatelessWidget {
     return switch (method) {
       PaymentMethod.creditCard => const _CardDetailsForm(),
       PaymentMethod.upi => _ChoicePanel(
-          title: 'Pay with UPI app',
-          subtitle: 'Select the app installed on your phone.',
-          options: const ['Google Pay', 'PhonePe', 'Paytm', 'BHIM'],
-          selectedOption: selectedUpiApp,
-          onChanged: onUpiChanged,
-        ),
+        title: 'Pay with UPI app',
+        subtitle: 'Select the app installed on your phone.',
+        options: const ['Google Pay', 'PhonePe', 'Paytm', 'BHIM'],
+        selectedOption: selectedUpiApp,
+        onChanged: onUpiChanged,
+      ),
       PaymentMethod.netBanking => _ChoicePanel(
-          title: 'Select your bank',
-          subtitle: 'You will be redirected to the bank login page.',
-          options: const [
-            'HDFC Bank',
-            'State Bank of India',
-            'ICICI Bank',
-            'Axis Bank',
-          ],
-          selectedOption: selectedBank,
-          onChanged: onBankChanged,
-        ),
+        title: 'Select your bank',
+        subtitle: 'You will be redirected to the bank login page.',
+        options: const [
+          'HDFC Bank',
+          'State Bank of India',
+          'ICICI Bank',
+          'Axis Bank',
+        ],
+        selectedOption: selectedBank,
+        onChanged: onBankChanged,
+      ),
     };
   }
 }
@@ -616,9 +596,6 @@ class _MethodHint extends StatelessWidget {
     );
   }
 }
-
-
-
 
 String _formatIndianCurrency(int value) {
   final digits = value.toString();

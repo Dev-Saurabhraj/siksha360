@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../models/fee_summary.dart';
 import '../widgets/app_brand_bar.dart';
 import '../widgets/grid_background.dart';
 import '../widgets/info_chip.dart';
 import '../widgets/primary_action_button.dart';
-import 'payment_details_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, required this.fee});
@@ -188,11 +188,7 @@ class _FeeCard extends StatelessWidget {
           PrimaryActionButton(
             label: 'Pay Now',
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => PaymentDetailsScreen(fee: fee),
-                ),
-              );
+              context.push('/payment', extra: fee);
             },
           ),
         ],
