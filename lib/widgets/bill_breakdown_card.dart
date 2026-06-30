@@ -4,8 +4,10 @@ import 'package:siksha360/utils/box_decoration.dart';
 import 'package:siksha360/utils/colors.dart';
 import 'package:siksha360/utils/icons.dart';
 
+import 'dashed_divider.dart';
+
 class BillBreakdownCard extends StatelessWidget {
-  const BillBreakdownCard({
+  const BillBreakdownCard({super.key,
     required this.fee,
     required this.platformFee,
     required this.taxes,
@@ -61,42 +63,42 @@ class BillBreakdownCard extends StatelessWidget {
           _BillLine(label: 'Student', value: fee.childName),
           _BillLine(label: 'Receiver type', value: fee.receiverType),
           _BillLine(label: 'Fee category', value: fee.dueLabel),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: Divider(height: 1, color: AppColors.borderSoft),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: CustomPaint(
+              size: const Size(double.infinity, 2),
+              painter: DashedPainter(),
+            ),
           ),
           _BillLine(label: 'Tuition amount', value: formatAmount(fee.amount)),
           _BillLine(label: 'Platform fee', value: formatAmount(platformFee)),
           _BillLine(label: 'Taxes', value: formatAmount(taxes)),
           const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-            decoration: BoxDecoration(
-              color: AppColors.accentBlueLight,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                const Expanded(
-                  child: Text(
-                    'Total payable',
-                    style: TextStyle(
-                      color: AppColors.accentBlueDeep,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-                Text(
-                  formatAmount(totalPayable),
-                  style: const TextStyle(
-                    color: AppColors.ink,
-                    fontSize: 22,
+          CustomPaint(
+            size: const Size(double.infinity, 2),
+            painter: DashedPainter(),
+          ),
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Total payable',
+                  style: TextStyle(
+                    color: AppColors.accentBlueDeep,
+                    fontSize: 16,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
-              ],
-            ),
+              ),
+              Text(
+                formatAmount(totalPayable),
+                style: const TextStyle(
+                  color: AppColors.ink,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
           ),
         ],
       ),
