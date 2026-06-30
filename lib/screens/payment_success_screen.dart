@@ -6,7 +6,7 @@ import '../widgets/grid_background.dart';
 import '../widgets/primary_action_button.dart';
 import 'payment_details_screen.dart';
 
-class PaymentSuccessScreen extends StatelessWidget {
+class PaymentSuccessScreen extends StatefulWidget {
   const PaymentSuccessScreen({
     super.key,
     required this.fee,
@@ -19,7 +19,67 @@ class PaymentSuccessScreen extends StatelessWidget {
   final String transactionId;
 
   @override
+  State<PaymentSuccessScreen> createState() => _PaymentSuccessScreenState();
+}
+
+class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _checkScale;
+  late final Animation<double> _checkTurn;
+  late final Animation<double> _contentFade;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..forward();
+
+    _checkScale = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.2, end: 1.18)
+            .chain(CurveTween(curve: Curves.easeOutBack)),
+        weight: 70,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 1.18, end: 1)
+            .chain(CurveTween(curve: Curves.easeOutCubic)),
+        weight: 30,
+      ),
+    ]).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0, 0.78),
+      ),
+    );
+
+    _checkTurn = Tween<double>(begin: -0.06, end: 0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0, 0.62, curve: Curves.easeOutBack),
+      ),
+    );
+
+    _contentFade = CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.32, 1, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final fee = widget.fee;
+    final method = widget.method;
+    final transactionId = widget.transactionId;
+
     return Scaffold(
       appBar: const AppBrandBar(),
       body: GridBackground(
@@ -48,61 +108,74 @@ class PaymentSuccessScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Container(
-                        width: 82,
-                        height: 82,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFFE9F6EF),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.check_circle,
-                          color: Color(0xFF2F8D62),
-                          size: 58,
+                      ScaleTransition(
+                        scale: _checkScale,
+                        child: RotationTransition(
+                          turns: _checkTurn,
+                          child: Container(
+                            width: 82,
+                            height: 82,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFE9F6EF),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.check_circle,
+                              color: Color(0xFF2F8D62),
+                              size: 58,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 18),
-                      const Text(
-                        'Payment Successful!',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Color(0xFF17181C),
-                          fontSize: 30,
-                          fontWeight: FontWeight.w900,
+                      FadeTransition(
+                        opacity: _contentFade,
+                        child: Column(
+                          children: [
+                            const Text(
+                              'Payment Successful!',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color(0xFF17181C),
+                                fontSize: 30,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '${fee.receiverName} has received your mock payment.',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Color(0xFF60656F),
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            _ReceiptLine(
+                              label: 'Amount Paid',
+                              value: fee.formattedAmount,
+                            ),
+                            _ReceiptLine(
+                              label: 'Payment Method',
+                              value: method.label,
+                            ),
+                            _ReceiptLine(
+                              label: 'Transaction ID',
+                              value: transactionId,
+                            ),
+                            const SizedBox(height: 24),
+                            PrimaryActionButton(
+                              label: 'Back to Home',
+                              icon: Icons.home_outlined,
+                              onPressed: () {
+                                Navigator.of(
+                                  context,
+                                ).popUntil((route) => route.isFirst);
+                              },
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${fee.receiverName} has received your mock payment.',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Color(0xFF60656F),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      _ReceiptLine(
-                        label: 'Amount Paid',
-                        value: fee.formattedAmount,
-                      ),
-                      _ReceiptLine(
-                        label: 'Payment Method',
-                        value: method.label,
-                      ),
-                      _ReceiptLine(
-                        label: 'Transaction ID',
-                        value: transactionId,
-                      ),
-                      const SizedBox(height: 24),
-                      PrimaryActionButton(
-                        label: 'Back to Home',
-                        icon: Icons.home_outlined,
-                        onPressed: () {
-                          Navigator.of(
-                            context,
-                          ).popUntil((route) => route.isFirst);
-                        },
                       ),
                     ],
                   ),

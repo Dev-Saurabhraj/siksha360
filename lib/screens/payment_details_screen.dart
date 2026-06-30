@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-
+import 'package:siksha360/utils/box_decoration.dart';
+import 'package:siksha360/widgets/bill_breakdown_card.dart';
+import 'package:siksha360/widgets/header_card.dart';
+import 'package:siksha360/widgets/processing_overlay.dart';
 import '../models/fee_summary.dart';
 import '../widgets/app_brand_bar.dart';
 import '../widgets/grid_background.dart';
@@ -31,6 +34,7 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
   String _selectedUpiApp = 'Google Pay';
   String _selectedBank = 'HDFC Bank';
   String? _validationMessage;
+  bool _isProcessing = false;
 
   int get _platformFee => 0;
   int get _taxes => 0;
@@ -45,7 +49,11 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
     });
   }
 
-  void _proceedToPay() {
+  Future<void> _proceedToPay() async {
+    if (_isProcessing) {
+      return;
+    }
+
     final selectedMethod = _selectedMethod;
     if (selectedMethod == null) {
       setState(() {
@@ -54,13 +62,47 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
       return;
     }
 
+    setState(() {
+      _isProcessing = true;
+      _validationMessage = null;
+    });
+
+    await Future<void>.delayed(const Duration(seconds: 2));
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isProcessing = false;
+    });
+
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => PaymentSuccessScreen(
+      PageRouteBuilder<void>(
+        transitionDuration: const Duration(milliseconds: 520),
+        reverseTransitionDuration: const Duration(milliseconds: 320),
+        pageBuilder: (_, animation, _) => PaymentSuccessScreen(
           fee: widget.fee,
           method: selectedMethod,
           transactionId: 'TXN123456789',
         ),
+        transitionsBuilder: (_, animation, _, child) {
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+          );
+
+          return FadeTransition(
+            opacity: curved,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 0.08),
+                end: Offset.zero,
+              ).animate(curved),
+              child: child,
+            ),
+          );
+        },
       ),
     );
   }
@@ -71,268 +113,124 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
 
     return Scaffold(
       appBar: const AppBrandBar(showBackButton: true),
-      body: GridBackground(
-        child: SafeArea(
-          top: false,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 28),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 680),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _HeaderCard(fee: fee),
-                    const SizedBox(height: 14),
-                    _BillBreakdownCard(
-                      fee: fee,
-                      platformFee: _platformFee,
-                      taxes: _taxes,
-                      totalPayable: _totalPayable,
-                      formatAmount: _formatAmount,
-                    ),
-                    const SizedBox(height: 14),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(18),
-                      decoration: _panelDecoration(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+      body: Stack(
+        children: [
+          GridBackground(
+            child: SafeArea(
+              top: false,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 28),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 680),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        HeaderCard(fee: fee),
+                        const SizedBox(height: 14),
+                        BillBreakdownCard(
+                          fee: fee,
+                          platformFee: _platformFee,
+                          taxes: _taxes,
+                          totalPayable: _totalPayable,
+                          formatAmount: _formatAmount,
+                        ),
+                        const SizedBox(height: 14),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(18),
+                          decoration: panelDecoration(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Expanded(
-                                child: Text(
-                                  'Choose payment option',
-                                  style: TextStyle(
-                                    color: Color(0xFF17181C),
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                              ),
-                              _SecureBadge(),
-                            ],
-                          ),
-                          const SizedBox(height: 14),
-                          Row(
-                            children: [
-                              for (final method in PaymentMethod.values) ...[
-                                Expanded(
-                                  child: _PaymentOptionButton(
-                                    method: method,
-                                    selected: _selectedMethod == method,
-                                    onTap: () => _selectMethod(method),
-                                  ),
-                                ),
-                                if (method != PaymentMethod.values.last)
-                                  const SizedBox(width: 8),
-                              ],
-                            ],
-                          ),
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 180),
-                            child: _selectedMethod == null
-                                ? const _MethodHint()
-                                : Padding(
-                                    key: ValueKey(_selectedMethod),
-                                    padding: const EdgeInsets.only(top: 16),
-                                    child: _PaymentMethodDetails(
-                                      method: _selectedMethod!,
-                                      selectedUpiApp: _selectedUpiApp,
-                                      selectedBank: _selectedBank,
-                                      onUpiChanged: (value) {
-                                        setState(() => _selectedUpiApp = value);
-                                      },
-                                      onBankChanged: (value) {
-                                        setState(() => _selectedBank = value);
-                                      },
+                              Row(
+                                children: [
+                                  const Expanded(
+                                    child: Text(
+                                      'Choose payment option',
+                                      style: TextStyle(
+                                        color: Color(0xFF17181C),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w900,
+                                      ),
                                     ),
                                   ),
-                          ),
-                          if (_validationMessage != null) ...[
-                            const SizedBox(height: 12),
-                            Text(
-                              _validationMessage!,
-                              style: const TextStyle(
-                                color: Color(0xFFB3261E),
-                                fontWeight: FontWeight.w800,
+                                  _SecureBadge(),
+                                ],
                               ),
-                            ),
-                          ],
-                          const SizedBox(height: 18),
-                          PrimaryActionButton(
-                            label: 'Pay ${_formatAmount(_totalPayable)}',
-                            icon: Icons.lock_outline,
-                            onPressed: _proceedToPay,
+                              const SizedBox(height: 14),
+                              Row(
+                                children: [
+                                  for (final method
+                                      in PaymentMethod.values) ...[
+                                    Expanded(
+                                      child: _PaymentOptionButton(
+                                        method: method,
+                                        selected: _selectedMethod == method,
+                                        onTap: () => _selectMethod(method),
+                                      ),
+                                    ),
+                                    if (method != PaymentMethod.values.last)
+                                      const SizedBox(width: 8),
+                                  ],
+                                ],
+                              ),
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 180),
+                                child: _selectedMethod == null
+                                    ? const _MethodHint()
+                                    : Padding(
+                                        key: ValueKey(_selectedMethod),
+                                        padding:
+                                            const EdgeInsets.only(top: 16),
+                                        child: _PaymentMethodDetails(
+                                          method: _selectedMethod!,
+                                          selectedUpiApp: _selectedUpiApp,
+                                          selectedBank: _selectedBank,
+                                          onUpiChanged: (value) {
+                                            setState(
+                                              () => _selectedUpiApp = value,
+                                            );
+                                          },
+                                          onBankChanged: (value) {
+                                            setState(
+                                              () => _selectedBank = value,
+                                            );
+                                          },
+                                        ),
+                                      ),
+                              ),
+                              if (_validationMessage != null) ...[
+                                const SizedBox(height: 12),
+                                Text(
+                                  _validationMessage!,
+                                  style: const TextStyle(
+                                    color: Color(0xFFB3261E),
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ],
+                              const SizedBox(height: 18),
+                              PrimaryActionButton(
+                                label: _isProcessing
+                                    ? 'Processing...'
+                                    : 'Pay ${_formatAmount(_totalPayable)}',
+                                icon: _isProcessing
+                                    ? Icons.hourglass_top
+                                    : Icons.lock_outline,
+                                onPressed: _proceedToPay,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _HeaderCard extends StatelessWidget {
-  const _HeaderCard({required this.fee});
-
-  final FeeSummary fee;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF17181C),
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x22000000),
-            blurRadius: 24,
-            offset: Offset(0, 12),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'PAYMENT DESK',
-            style: TextStyle(
-              color: Color(0xFFBEC6D2),
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.6,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            fee.receiverName,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 27,
-              height: 1.08,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _HeaderChip(icon: Icons.person_outline, label: fee.childName),
-              _HeaderChip(icon: Icons.school_outlined, label: fee.className),
-              _HeaderChip(icon: Icons.event_note_outlined, label: fee.dueLabel),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BillBreakdownCard extends StatelessWidget {
-  const _BillBreakdownCard({
-    required this.fee,
-    required this.platformFee,
-    required this.taxes,
-    required this.totalPayable,
-    required this.formatAmount,
-  });
-
-  final FeeSummary fee;
-  final int platformFee;
-  final int taxes;
-  final int totalPayable;
-  final String Function(int value) formatAmount;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: _panelDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 42,
-                height: 42,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF3DD),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.receipt_long_outlined,
-                  color: Color(0xFF94620D),
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Bill breakdown',
-                  style: TextStyle(
-                    color: Color(0xFF17181C),
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _BillLine(label: 'Student', value: fee.childName),
-          _BillLine(label: 'Receiver', value: fee.receiverName),
-          _BillLine(label: 'Fee category', value: fee.dueLabel),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: Divider(height: 1, color: Color(0xFFE8E9E6)),
-          ),
-          _BillLine(label: 'Tuition amount', value: formatAmount(fee.amount)),
-          _BillLine(label: 'Platform fee', value: formatAmount(platformFee)),
-          _BillLine(label: 'Taxes', value: formatAmount(taxes)),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-            decoration: BoxDecoration(
-              color: const Color(0xFFEAF1FF),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                const Expanded(
-                  child: Text(
-                    'Total payable',
-                    style: TextStyle(
-                      color: Color(0xFF214C87),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                Text(
-                  formatAmount(totalPayable),
-                  style: const TextStyle(
-                    color: Color(0xFF17181C),
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
+          if (_isProcessing) const ProcessingOverlay(),
         ],
       ),
     );
@@ -388,7 +286,7 @@ class _CardDetailsForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: _softPanelDecoration(),
+      decoration: softPanelDecoration(),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -461,7 +359,7 @@ class _ChoicePanel extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
-      decoration: _softPanelDecoration(),
+      decoration: softPanelDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -612,45 +510,6 @@ class _PaymentTextField extends StatelessWidget {
   }
 }
 
-class _BillLine extends StatelessWidget {
-  const _BillLine({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 9),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(
-                color: Color(0xFF777C86),
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Flexible(
-            child: Text(
-              value,
-              textAlign: TextAlign.right,
-              style: const TextStyle(
-                color: Color(0xFF17181C),
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _SelectablePill extends StatelessWidget {
   const _SelectablePill({
     required this.label,
@@ -703,39 +562,6 @@ class _SelectablePill extends StatelessWidget {
   }
 }
 
-class _HeaderChip extends StatelessWidget {
-  const _HeaderChip({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: const Color(0xFFDDE4EE), size: 16),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFFF4F6F8),
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _SecureBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -766,13 +592,12 @@ class _SecureBadge extends StatelessWidget {
 
 class _MethodHint extends StatelessWidget {
   const _MethodHint();
-
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.all(14),
-      decoration: _softPanelDecoration(),
+      decoration: softPanelDecoration(),
       child: const Row(
         children: [
           Icon(Icons.touch_app_outlined, color: Color(0xFF6B707A), size: 21),
@@ -792,28 +617,8 @@ class _MethodHint extends StatelessWidget {
   }
 }
 
-BoxDecoration _panelDecoration() {
-  return BoxDecoration(
-    color: Colors.white,
-    borderRadius: BorderRadius.circular(8),
-    border: Border.all(color: const Color(0xFFE3E4E0)),
-    boxShadow: const [
-      BoxShadow(
-        color: Color(0x12000000),
-        blurRadius: 18,
-        offset: Offset(0, 8),
-      ),
-    ],
-  );
-}
 
-BoxDecoration _softPanelDecoration() {
-  return BoxDecoration(
-    color: const Color(0xFFF7F7F5),
-    borderRadius: BorderRadius.circular(8),
-    border: Border.all(color: const Color(0xFFE8E9E6)),
-  );
-}
+
 
 String _formatIndianCurrency(int value) {
   final digits = value.toString();
