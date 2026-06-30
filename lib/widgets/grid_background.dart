@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/colors.dart';
+
 class GridBackground extends StatelessWidget {
   const GridBackground({super.key, required this.child});
 
@@ -7,6 +9,6 @@ class GridBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(color: const Color(0xFFFAFAF8), child: child);
+    return ColoredBox(color: AppColors.paper, child: child);
   }
 }

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../utils/colors.dart';
+import '../utils/icons.dart';
+
 class AppBrandBar extends StatelessWidget implements PreferredSizeWidget {
   const AppBrandBar({super.key, this.showBackButton = false});
 
@@ -19,7 +22,7 @@ class AppBrandBar extends StatelessWidget implements PreferredSizeWidget {
             IconButton(
               tooltip: 'Back',
               onPressed: () => Navigator.of(context).maybePop(),
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(AppIcons.back),
             ),
             const SizedBox(width: 4),
           ],
@@ -28,13 +31,13 @@ class AppBrandBar extends StatelessWidget implements PreferredSizeWidget {
             height: 34,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: const Color(0xFF17181C),
+              color: AppColors.ink,
               borderRadius: BorderRadius.circular(5),
             ),
             child: const Text(
               's',
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.paper,
                 fontWeight: FontWeight.w900,
                 fontSize: 16,
               ),
@@ -44,7 +47,7 @@ class AppBrandBar extends StatelessWidget implements PreferredSizeWidget {
           RichText(
             text: const TextSpan(
               style: TextStyle(
-                color: Color(0xFF17181C),
+                color: AppColors.ink,
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
               ),
@@ -53,7 +56,7 @@ class AppBrandBar extends StatelessWidget implements PreferredSizeWidget {
                 TextSpan(
                   text: '360',
                   style: TextStyle(
-                    color: Color(0xFF7C7F87),
+                    color: AppColors.textSubtle,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

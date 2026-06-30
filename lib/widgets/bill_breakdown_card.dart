@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:siksha360/models/fee_summary.dart';
 import 'package:siksha360/utils/box_decoration.dart';
+import 'package:siksha360/utils/colors.dart';
+import 'package:siksha360/utils/icons.dart';
 
 class BillBreakdownCard extends StatelessWidget {
   const BillBreakdownCard({
@@ -33,12 +35,12 @@ class BillBreakdownCard extends StatelessWidget {
                 height: 42,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFF3DD),
+                  color: AppColors.accentGoldLight,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
-                  Icons.receipt_long_outlined,
-                  color: Color(0xFF94620D),
+                  AppIcons.receipt,
+                  color: AppColors.accentGold,
                   size: 22,
                 ),
               ),
@@ -47,7 +49,7 @@ class BillBreakdownCard extends StatelessWidget {
                 child: Text(
                   'Bill breakdown',
                   style: TextStyle(
-                    color: Color(0xFF17181C),
+                    color: AppColors.ink,
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
                   ),
@@ -61,7 +63,7 @@ class BillBreakdownCard extends StatelessWidget {
           _BillLine(label: 'Fee category', value: fee.dueLabel),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 10),
-            child: Divider(height: 1, color: Color(0xFFE8E9E6)),
+            child: Divider(height: 1, color: AppColors.borderSoft),
           ),
           _BillLine(label: 'Tuition amount', value: formatAmount(fee.amount)),
           _BillLine(label: 'Platform fee', value: formatAmount(platformFee)),
@@ -70,7 +72,7 @@ class BillBreakdownCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
             decoration: BoxDecoration(
-              color: const Color(0xFFEAF1FF),
+              color: AppColors.accentBlueLight,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -79,7 +81,7 @@ class BillBreakdownCard extends StatelessWidget {
                   child: Text(
                     'Total payable',
                     style: TextStyle(
-                      color: Color(0xFF214C87),
+                      color: AppColors.accentBlueDeep,
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
                     ),
@@ -88,7 +90,7 @@ class BillBreakdownCard extends StatelessWidget {
                 Text(
                   formatAmount(totalPayable),
                   style: const TextStyle(
-                    color: Color(0xFF17181C),
+                    color: AppColors.ink,
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
                   ),
@@ -124,7 +126,7 @@ class _BillLine extends StatelessWidget {
                 child: Text(
                   label,
                   style: const TextStyle(
-                    color: Color(0xFF777C86),
+                    color: AppColors.textLight,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -136,7 +138,7 @@ class _BillLine extends StatelessWidget {
                   textAlign: TextAlign.right,
                   softWrap: true,
                   style: const TextStyle(
-                    color: Color(0xFF17181C),
+                    color: AppColors.ink,
                     fontWeight: FontWeight.w900,
                   ),
                 ),

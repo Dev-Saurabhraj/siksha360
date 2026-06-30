@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:siksha360/models/fee_summary.dart';
+import 'package:siksha360/utils/colors.dart';
+import 'package:siksha360/utils/icons.dart';
 
 class HeaderCard extends StatelessWidget {
   const HeaderCard({required this.fee});
@@ -12,11 +14,11 @@ class HeaderCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF17181C),
+        color: AppColors.ink,
         borderRadius: BorderRadius.circular(8),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x22000000),
+            color: AppColors.shadowDark,
             blurRadius: 24,
             offset: Offset(0, 12),
           ),
@@ -28,7 +30,7 @@ class HeaderCard extends StatelessWidget {
           const Text(
             'PAYMENT DESK',
             style: TextStyle(
-              color: Color(0xFFBEC6D2),
+              color: AppColors.textCardMuted,
               fontSize: 12,
               fontWeight: FontWeight.w900,
               letterSpacing: 1.6,
@@ -38,7 +40,7 @@ class HeaderCard extends StatelessWidget {
           const Text(
             'Receiver',
             style: TextStyle(
-              color: Color(0xFFBEC6D2),
+              color: AppColors.textCardMuted,
               fontSize: 12,
               fontWeight: FontWeight.w800,
               letterSpacing: 1.2,
@@ -48,7 +50,7 @@ class HeaderCard extends StatelessWidget {
           Text(
             fee.receiverName,
             style: const TextStyle(
-              color: Colors.white,
+              color: AppColors.paper,
               fontSize: 27,
               height: 1.08,
               fontWeight: FontWeight.w900,
@@ -59,9 +61,9 @@ class HeaderCard extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _HeaderChip(icon: Icons.person_outline, label: fee.childName),
-              _HeaderChip(icon: Icons.school_outlined, label: fee.className),
-              _HeaderChip(icon: Icons.event_note_outlined, label: fee.dueLabel),
+              _HeaderChip(icon: AppIcons.person, label: fee.childName),
+              _HeaderChip(icon: AppIcons.school, label: fee.className),
+              _HeaderChip(icon: AppIcons.payment, label: fee.dueLabel),
             ],
           ),
         ],
@@ -81,19 +83,19 @@ class _HeaderChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.08),
+        color: AppColors.paper.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+        border: Border.all(color: AppColors.paper.withValues(alpha: 0.12)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: const Color(0xFFDDE4EE), size: 16),
+          Icon(icon, color: AppColors.textCardSoft, size: 16),
           const SizedBox(width: 6),
           Text(
             label,
             style: const TextStyle(
-              color: Color(0xFFF4F6F8),
+              color: AppColors.textCardLight,
               fontWeight: FontWeight.w700,
             ),
           ),

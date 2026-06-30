@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
 
+import 'colors.dart';
+
 BoxDecoration panelDecoration() {
   return BoxDecoration(
-    color: Colors.white,
+    color: AppColors.paper,
     borderRadius: BorderRadius.circular(8),
-    border: Border.all(color: const Color(0xFFE3E4E0)),
+    border: Border.all(color: AppColors.border),
     boxShadow: const [
-      BoxShadow(
-        color: Color(0x12000000),
-        blurRadius: 18,
-        offset: Offset(0, 8),
-      ),
+      BoxShadow(color: AppColors.shadow, blurRadius: 18, offset: Offset(0, 8)),
     ],
   );
 }
 
-
 BoxDecoration softPanelDecoration() {
   return BoxDecoration(
-    color: const Color(0xFFF7F7F5),
+    color: AppColors.paperAlt,
     borderRadius: BorderRadius.circular(8),
-    border: Border.all(color: const Color(0xFFE8E9E6)),
+    border: Border.all(color: AppColors.borderSoft),
   );
 }

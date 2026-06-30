@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_router.dart';
+import 'utils/colors.dart';
 
 void main() {
   runApp(const Siksha360App());
@@ -11,25 +12,22 @@ class Siksha360App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const ink = Color(0xFF17181C);
-    const paper = Color(0xFFFAFAF8);
-
     return MaterialApp.router(
       title: 'Siksha360',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        scaffoldBackgroundColor: paper,
+        scaffoldBackgroundColor: AppColors.paper,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: ink,
+          seedColor: AppColors.ink,
           brightness: Brightness.light,
-          primary: ink,
-          surface: Colors.white,
+          primary: AppColors.ink,
+          surface: AppColors.paper,
         ),
         fontFamily: 'Roboto',
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          foregroundColor: ink,
+          backgroundColor: AppColors.paper,
+          foregroundColor: AppColors.ink,
           centerTitle: false,
           elevation: 0,
           scrolledUnderElevation: 0,
@@ -37,8 +35,8 @@ class Siksha360App extends StatelessWidget {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: ink,
-            foregroundColor: Colors.white,
+            backgroundColor: AppColors.ink,
+            foregroundColor: AppColors.paper,
             elevation: 0,
             minimumSize: const Size.fromHeight(54),
             shape: RoundedRectangleBorder(

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../models/fee_summary.dart';
+import '../utils/colors.dart';
+import '../utils/icons.dart';
 import '../widgets/app_brand_bar.dart';
 import '../widgets/grid_background.dart';
 import '../widgets/info_chip.dart';
@@ -32,7 +34,7 @@ class HomeScreen extends StatelessWidget {
                         const Text(
                           'PARENT QUICK PAY',
                           style: TextStyle(
-                            color: Color(0xFF777C86),
+                            color: AppColors.textLight,
                             fontSize: 13,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 1.8,
@@ -42,7 +44,7 @@ class HomeScreen extends StatelessWidget {
                         const Text(
                           'A calmer way to clear school fees.',
                           style: TextStyle(
-                            color: Color(0xFF17181C),
+                            color: AppColors.ink,
                             fontSize: 40,
                             height: 1.05,
                             fontWeight: FontWeight.w900,
@@ -52,7 +54,7 @@ class HomeScreen extends StatelessWidget {
                         const Text(
                           'See what is pending, choose how to pay, and finish in a few quiet taps.',
                           style: TextStyle(
-                            color: Color(0xFF4B4F58),
+                            color: AppColors.textSecondary,
                             fontSize: 17,
                             height: 1.45,
                             fontWeight: FontWeight.w500,
@@ -66,11 +68,11 @@ class HomeScreen extends StatelessWidget {
                           runSpacing: 10,
                           children: [
                             InfoChip(
-                              icon: Icons.verified_user_outlined,
+                              icon: AppIcons.verify,
                               label: 'Mock secure flow',
                             ),
                             InfoChip(
-                              icon: Icons.receipt_long_outlined,
+                              icon: AppIcons.receipt,
                               label: 'Instant receipt',
                             ),
                           ],
@@ -99,12 +101,12 @@ class _FeeCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.paper,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE3E4E0)),
+        border: Border.all(color: AppColors.border),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x14000000),
+            color: AppColors.shadowMedium,
             blurRadius: 18,
             offset: Offset(0, 8),
           ),
@@ -120,12 +122,12 @@ class _FeeCard extends StatelessWidget {
                 height: 50,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEAF1FF),
+                  color: AppColors.accentBlueLight,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
-                  Icons.school_outlined,
-                  color: Color(0xFF325F9D),
+                  AppIcons.school,
+                  color: AppColors.accentBlue,
                   size: 28,
                 ),
               ),
@@ -139,14 +141,14 @@ class _FeeCard extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFF17181C),
+                        color: AppColors.ink,
                       ),
                     ),
                     const SizedBox(height: 3),
                     Text(
                       '${fee.className} · ${fee.receiverName}',
                       style: const TextStyle(
-                        color: Color(0xFF6B707A),
+                        color: AppColors.textMuted,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -156,12 +158,12 @@ class _FeeCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 22),
-          Container(height: 1, color: const Color(0xFFE9EAE6)),
+          Container(height: 1, color: AppColors.borderSoft),
           const SizedBox(height: 20),
           const Text(
             'Pending Fee',
             style: TextStyle(
-              color: Color(0xFF777C86),
+              color: AppColors.textLight,
               fontWeight: FontWeight.w800,
               letterSpacing: 1,
               fontSize: 12,
@@ -171,7 +173,7 @@ class _FeeCard extends StatelessWidget {
           Text(
             fee.formattedAmount,
             style: const TextStyle(
-              color: Color(0xFF17181C),
+              color: AppColors.ink,
               fontSize: 38,
               fontWeight: FontWeight.w900,
             ),
@@ -180,7 +182,7 @@ class _FeeCard extends StatelessWidget {
           Text(
             fee.dueLabel,
             style: const TextStyle(
-              color: Color(0xFF6B707A),
+              color: AppColors.textMuted,
               fontWeight: FontWeight.w600,
             ),
           ),

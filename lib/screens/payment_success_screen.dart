@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../models/fee_summary.dart';
 import '../models/payment_method.dart';
 import '../models/payment_receipt.dart';
+import '../utils/colors.dart';
+import '../utils/icons.dart';
 import '../widgets/app_brand_bar.dart';
 import '../widgets/grid_background.dart';
 import '../widgets/primary_action_button.dart';
@@ -105,12 +107,12 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.paper,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFFE3E4E0)),
+                    border: Border.all(color: AppColors.border),
                     boxShadow: const [
                       BoxShadow(
-                        color: Color(0x14000000),
+                        color: AppColors.shadowMedium,
                         blurRadius: 18,
                         offset: Offset(0, 8),
                       ),
@@ -127,12 +129,12 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                             width: 82,
                             height: 82,
                             decoration: const BoxDecoration(
-                              color: Color(0xFFE9F6EF),
+                              color: AppColors.accentGreenLight,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
-                              Icons.check_circle,
-                              color: Color(0xFF2F8D62),
+                              AppIcons.check,
+                              color: AppColors.accentGreen,
                               size: 58,
                             ),
                           ),
@@ -147,7 +149,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                               'Payment Successful!',
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                color: Color(0xFF17181C),
+                                color: AppColors.ink,
                                 fontSize: 30,
                                 fontWeight: FontWeight.w900,
                               ),
@@ -157,7 +159,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                               '${fee.receiverName} has received your mock payment.',
                               textAlign: TextAlign.center,
                               style: const TextStyle(
-                                color: Color(0xFF60656F),
+                                color: AppColors.textSoft,
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -178,7 +180,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen>
                             const SizedBox(height: 24),
                             PrimaryActionButton(
                               label: 'Back to Home',
-                              icon: Icons.home_outlined,
+                              icon: AppIcons.home,
                               onPressed: () {
                                 context.go('/');
                               },
@@ -210,7 +212,7 @@ class _ReceiptLine extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F7F5),
+        color: AppColors.paperAlt,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -219,7 +221,7 @@ class _ReceiptLine extends StatelessWidget {
             child: Text(
               label,
               style: const TextStyle(
-                color: Color(0xFF777C86),
+                color: AppColors.textLight,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -230,7 +232,7 @@ class _ReceiptLine extends StatelessWidget {
               value,
               textAlign: TextAlign.right,
               style: const TextStyle(
-                color: Color(0xFF17181C),
+                color: AppColors.ink,
                 fontWeight: FontWeight.w900,
                 fontSize: 15,
               ),

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:siksha360/blocs/payment/payment_bloc.dart';
+import 'package:siksha360/blocs/payment/payment_event.dart';
+import 'package:siksha360/blocs/payment/payment_state.dart';
 import 'package:siksha360/utils/box_decoration.dart';
 import 'package:siksha360/widgets/bill_breakdown_card.dart';
 import 'package:siksha360/widgets/header_card.dart';
@@ -7,211 +11,194 @@ import 'package:siksha360/widgets/processing_overlay.dart';
 import '../models/fee_summary.dart';
 import '../models/payment_method.dart';
 import '../models/payment_receipt.dart';
+import '../utils/colors.dart';
+import '../utils/icons.dart';
 import '../widgets/app_brand_bar.dart';
 import '../widgets/grid_background.dart';
 import '../widgets/primary_action_button.dart';
-import 'payment_success_screen.dart';
 
-class PaymentDetailsScreen extends StatefulWidget {
+class PaymentDetailsScreen extends StatelessWidget {
   const PaymentDetailsScreen({super.key, required this.fee});
 
   final FeeSummary fee;
 
-  @override
-  State<PaymentDetailsScreen> createState() => _PaymentDetailsScreenState();
-}
-
-class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
-  PaymentMethod? _selectedMethod;
-  String _selectedUpiApp = 'Google Pay';
-  String _selectedBank = 'HDFC Bank';
-  String? _validationMessage;
-  bool _isProcessing = false;
-
-  int get _platformFee => 0;
-  int get _taxes => 0;
-  int get _totalPayable => widget.fee.amount + _platformFee + _taxes;
-
   String _formatAmount(int value) => '₹${_formatIndianCurrency(value)}';
-
-  void _selectMethod(PaymentMethod method) {
-    setState(() {
-      _selectedMethod = method;
-      _validationMessage = null;
-    });
-  }
-
-  Future<void> _proceedToPay() async {
-    if (_isProcessing) {
-      return;
-    }
-
-    final selectedMethod = _selectedMethod;
-    if (selectedMethod == null) {
-      setState(() {
-        _validationMessage = 'Please select a payment method to continue.';
-      });
-      return;
-    }
-
-    setState(() {
-      _isProcessing = true;
-      _validationMessage = null;
-    });
-
-    await Future<void>.delayed(const Duration(seconds: 2));
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _isProcessing = false;
-    });
-
-    context.push(
-      '/success',
-      extra: PaymentReceipt(
-        fee: widget.fee,
-        method: selectedMethod,
-        transactionId: 'TXN123456789',
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    final fee = widget.fee;
+    return BlocListener<PaymentBloc, PaymentState>(
+      listener: (context, state) {
+        if (state.status == PaymentStatus.success && state.receipt != null) {
+          context.read<PaymentBloc>().add(const PaymentNavigationHandled());
+          context.push('/success', extra: state.receipt!);
+        }
+      },
+      child: BlocBuilder<PaymentBloc, PaymentState>(
+        builder: (context, state) {
+          final fee = state.fee;
+          final selectedMethod = state.selectedMethod;
+          final totalPayable = state.totalPayable;
+          final validationMessage = state.validationMessage;
+          final isProcessing = state.isProcessing;
 
-    return Scaffold(
-      appBar: const AppBrandBar(showBackButton: true),
-      body: Stack(
-        children: [
-          GridBackground(
-            child: SafeArea(
-              top: false,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 24, 20, 28),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 680),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Payment Details',
-                          style: TextStyle(
-                            color: Color(0xFF17181C),
-                            fontSize: 24,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        HeaderCard(fee: fee),
-                        const SizedBox(height: 14),
-                        BillBreakdownCard(
-                          fee: fee,
-                          platformFee: _platformFee,
-                          taxes: _taxes,
-                          totalPayable: _totalPayable,
-                          formatAmount: _formatAmount,
-                        ),
-                        const SizedBox(height: 14),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(18),
-                          decoration: panelDecoration(),
+          return Scaffold(
+            appBar: const AppBrandBar(showBackButton: true),
+            body: Stack(
+              children: [
+                GridBackground(
+                  child: SafeArea(
+                    top: false,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 28),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 680),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                children: [
-                                  const Expanded(
-                                    child: Text(
-                                      'Choose payment option',
-                                      style: TextStyle(
-                                        color: Color(0xFF17181C),
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w900,
-                                      ),
-                                    ),
-                                  ),
-                                  _SecureBadge(),
-                                ],
+                              const Text(
+                                'Payment Details',
+                                style: TextStyle(
+                                  color: AppColors.ink,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              HeaderCard(fee: fee),
+                              const SizedBox(height: 14),
+                              BillBreakdownCard(
+                                fee: fee,
+                                platformFee: state.platformFee,
+                                taxes: state.taxes,
+                                totalPayable: totalPayable,
+                                formatAmount: _formatAmount,
                               ),
                               const SizedBox(height: 14),
-                              Row(
-                                children: [
-                                  for (final method
-                                      in PaymentMethod.values) ...[
-                                    Expanded(
-                                      child: _PaymentOptionButton(
-                                        method: method,
-                                        selected: _selectedMethod == method,
-                                        onTap: () => _selectMethod(method),
-                                      ),
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(18),
+                                decoration: panelDecoration(),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Expanded(
+                                          child: Text(
+                                            'Choose payment option',
+                                            style: TextStyle(
+                                              color: AppColors.ink,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w900,
+                                            ),
+                                          ),
+                                        ),
+                                        _SecureBadge(),
+                                      ],
                                     ),
-                                    if (method != PaymentMethod.values.last)
-                                      const SizedBox(width: 8),
-                                  ],
-                                ],
-                              ),
-                              AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 180),
-                                child: _selectedMethod == null
-                                    ? const _MethodHint()
-                                    : Padding(
-                                        key: ValueKey(_selectedMethod),
-                                        padding: const EdgeInsets.only(top: 16),
-                                        child: _PaymentMethodDetails(
-                                          method: _selectedMethod!,
-                                          selectedUpiApp: _selectedUpiApp,
-                                          selectedBank: _selectedBank,
-                                          onUpiChanged: (value) {
-                                            setState(
-                                              () => _selectedUpiApp = value,
-                                            );
-                                          },
-                                          onBankChanged: (value) {
-                                            setState(
-                                              () => _selectedBank = value,
-                                            );
-                                          },
+                                    const SizedBox(height: 14),
+                                    Row(
+                                      children: [
+                                        for (final method
+                                            in PaymentMethod.values) ...[
+                                          Expanded(
+                                            child: _PaymentOptionButton(
+                                              method: method,
+                                              selected:
+                                                  selectedMethod == method,
+                                              onTap: () => context
+                                                  .read<PaymentBloc>()
+                                                  .add(
+                                                    PaymentMethodSelected(
+                                                      method,
+                                                    ),
+                                                  ),
+                                            ),
+                                          ),
+                                          if (method !=
+                                              PaymentMethod.values.last)
+                                            const SizedBox(width: 8),
+                                        ],
+                                      ],
+                                    ),
+                                    AnimatedSwitcher(
+                                      duration: const Duration(
+                                        milliseconds: 180,
+                                      ),
+                                      child: selectedMethod == null
+                                          ? const _MethodHint()
+                                          : Padding(
+                                              key: ValueKey(selectedMethod),
+                                              padding: const EdgeInsets.only(
+                                                top: 16,
+                                              ),
+                                              child: _PaymentMethodDetails(
+                                                method: selectedMethod!,
+                                                selectedUpiApp:
+                                                    state.selectedUpiApp,
+                                                selectedBank:
+                                                    state.selectedBank,
+                                                onUpiChanged: (value) {
+                                                  context
+                                                      .read<PaymentBloc>()
+                                                      .add(
+                                                        PaymentUpiAppSelected(
+                                                          value,
+                                                        ),
+                                                      );
+                                                },
+                                                onBankChanged: (value) {
+                                                  context
+                                                      .read<PaymentBloc>()
+                                                      .add(
+                                                        PaymentBankSelected(
+                                                          value,
+                                                        ),
+                                                      );
+                                                },
+                                              ),
+                                            ),
+                                    ),
+                                    if (validationMessage != null) ...[
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        validationMessage,
+                                        style: const TextStyle(
+                                          color: AppColors.danger,
+                                          fontWeight: FontWeight.w800,
                                         ),
                                       ),
-                              ),
-                              if (_validationMessage != null) ...[
-                                const SizedBox(height: 12),
-                                Text(
-                                  _validationMessage!,
-                                  style: const TextStyle(
-                                    color: Color(0xFFB3261E),
-                                    fontWeight: FontWeight.w800,
-                                  ),
+                                    ],
+                                    const SizedBox(height: 18),
+                                    PrimaryActionButton(
+                                      label: isProcessing
+                                          ? 'Processing...'
+                                          : 'Proceed to Pay',
+                                      icon: isProcessing
+                                          ? AppIcons.processing
+                                          : AppIcons.secure,
+                                      onPressed: () {
+                                        context.read<PaymentBloc>().add(
+                                          const PaymentSubmitted(),
+                                        );
+                                      },
+                                    ),
+                                  ],
                                 ),
-                              ],
-                              const SizedBox(height: 18),
-                              PrimaryActionButton(
-                                label: _isProcessing
-                                    ? 'Processing...'
-                                    : 'Proceed to Pay',
-                                icon: _isProcessing
-                                    ? Icons.hourglass_top
-                                    : Icons.lock_outline,
-                                onPressed: _proceedToPay,
                               ),
                             ],
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
+                if (isProcessing) const ProcessingOverlay(),
+              ],
             ),
-          ),
-          if (_isProcessing) const ProcessingOverlay(),
-        ],
+          );
+        },
       ),
     );
   }
@@ -273,7 +260,7 @@ class _CardDetailsForm extends StatelessWidget {
           Text(
             'Enter card details',
             style: TextStyle(
-              color: Color(0xFF17181C),
+              color: AppColors.ink,
               fontSize: 16,
               fontWeight: FontWeight.w900,
             ),
@@ -282,7 +269,7 @@ class _CardDetailsForm extends StatelessWidget {
           _PaymentTextField(
             label: 'Card number',
             hint: '1234 5678 9012 3456',
-            icon: Icons.credit_card,
+            icon: AppIcons.card,
             keyboardType: TextInputType.number,
           ),
           SizedBox(height: 10),
@@ -292,7 +279,7 @@ class _CardDetailsForm extends StatelessWidget {
                 child: _PaymentTextField(
                   label: 'Expiry',
                   hint: 'MM / YY',
-                  icon: Icons.calendar_today_outlined,
+                  icon: AppIcons.calendar,
                 ),
               ),
               SizedBox(width: 10),
@@ -300,7 +287,7 @@ class _CardDetailsForm extends StatelessWidget {
                 child: _PaymentTextField(
                   label: 'CVV',
                   hint: '***',
-                  icon: Icons.lock_outline,
+                  icon: AppIcons.secure,
                   keyboardType: TextInputType.number,
                   obscureText: true,
                 ),
@@ -311,7 +298,7 @@ class _CardDetailsForm extends StatelessWidget {
           _PaymentTextField(
             label: 'Name on card',
             hint: 'Parent or guardian name',
-            icon: Icons.person_outline,
+            icon: AppIcons.person,
           ),
         ],
       ),
@@ -346,7 +333,7 @@ class _ChoicePanel extends StatelessWidget {
           Text(
             title,
             style: const TextStyle(
-              color: Color(0xFF17181C),
+              color: AppColors.ink,
               fontSize: 16,
               fontWeight: FontWeight.w900,
             ),
@@ -355,7 +342,7 @@ class _ChoicePanel extends StatelessWidget {
           Text(
             subtitle,
             style: const TextStyle(
-              color: Color(0xFF6B707A),
+              color: AppColors.textMuted,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -401,17 +388,15 @@ class _PaymentOptionButton extends StatelessWidget {
           height: 82,
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
           decoration: BoxDecoration(
-            color: selected ? const Color(0xFF17181C) : Colors.white,
+            color: selected ? AppColors.ink : AppColors.paper,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: selected
-                  ? const Color(0xFF17181C)
-                  : const Color(0xFFE0E2DE),
+              color: selected ? AppColors.ink : AppColors.borderMuted,
             ),
             boxShadow: selected
                 ? const [
                     BoxShadow(
-                      color: Color(0x1D000000),
+                      color: AppColors.shadowStrong,
                       blurRadius: 16,
                       offset: Offset(0, 8),
                     ),
@@ -423,7 +408,7 @@ class _PaymentOptionButton extends StatelessWidget {
             children: [
               Icon(
                 method.icon,
-                color: selected ? Colors.white : const Color(0xFF4B4F58),
+                color: selected ? AppColors.paper : AppColors.textSecondary,
                 size: 23,
               ),
               const SizedBox(height: 7),
@@ -433,7 +418,7 @@ class _PaymentOptionButton extends StatelessWidget {
                   method.label,
                   maxLines: 1,
                   style: TextStyle(
-                    color: selected ? Colors.white : const Color(0xFF17181C),
+                    color: selected ? AppColors.paper : AppColors.ink,
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
                   ),
@@ -472,18 +457,21 @@ class _PaymentTextField extends StatelessWidget {
         hintText: hint,
         prefixIcon: Icon(icon, size: 19),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.paper,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFFE0E2DE)),
+          borderSide: const BorderSide(color: AppColors.borderMuted),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFFE0E2DE)),
+          borderSide: const BorderSide(color: AppColors.borderMuted),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF335E9B), width: 1.4),
+          borderSide: const BorderSide(
+            color: AppColors.accentBlueBorder,
+            width: 1.4,
+          ),
         ),
       ),
     );
@@ -510,10 +498,10 @@ class _SelectablePill extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFFE9F6EF) : Colors.white,
+          color: selected ? AppColors.accentGreenLight : AppColors.paper,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: selected ? const Color(0xFF2F8D62) : const Color(0xFFE0E2DE),
+            color: selected ? AppColors.accentGreen : AppColors.borderMuted,
             width: selected ? 1.4 : 1,
           ),
         ),
@@ -521,17 +509,15 @@ class _SelectablePill extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              selected ? Icons.check_circle : Icons.circle_outlined,
-              color: selected
-                  ? const Color(0xFF2F8D62)
-                  : const Color(0xFF9AA0AA),
+              selected ? AppIcons.check : AppIcons.circle,
+              color: selected ? AppColors.accentGreen : AppColors.neutral,
               size: 18,
             ),
             const SizedBox(width: 7),
             Text(
               label,
               style: const TextStyle(
-                color: Color(0xFF17181C),
+                color: AppColors.ink,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -548,18 +534,18 @@ class _SecureBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: const Color(0xFFE9F6EF),
+        color: AppColors.accentGreenLight,
         borderRadius: BorderRadius.circular(999),
       ),
       child: const Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.lock_outline, size: 15, color: Color(0xFF2F8D62)),
+          Icon(AppIcons.secure, size: 15, color: AppColors.accentGreen),
           SizedBox(width: 5),
           Text(
             'secured',
             style: TextStyle(
-              color: Color(0xFF2F8D62),
+              color: AppColors.accentGreen,
               fontWeight: FontWeight.w900,
               fontSize: 12,
             ),
@@ -580,13 +566,13 @@ class _MethodHint extends StatelessWidget {
       decoration: softPanelDecoration(),
       child: const Row(
         children: [
-          Icon(Icons.touch_app_outlined, color: Color(0xFF6B707A), size: 21),
+          Icon(AppIcons.touch, color: AppColors.textMuted, size: 21),
           SizedBox(width: 10),
           Expanded(
             child: Text(
               'Select a payment option to view the required details.',
               style: TextStyle(
-                color: Color(0xFF5E636D),
+                color: AppColors.textHint,
                 fontWeight: FontWeight.w700,
               ),
             ),

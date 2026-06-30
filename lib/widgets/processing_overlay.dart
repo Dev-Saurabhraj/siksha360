@@ -1,5 +1,6 @@
-
 import 'package:flutter/material.dart';
+
+import '../utils/colors.dart';
 
 class ProcessingOverlay extends StatelessWidget {
   const ProcessingOverlay();
@@ -10,19 +11,19 @@ class ProcessingOverlay extends StatelessWidget {
       child: AbsorbPointer(
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.72),
+            color: AppColors.paper.withValues(alpha: 0.72),
           ),
           child: Center(
             child: Container(
               width: 210,
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.paper,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFE3E4E0)),
+                border: Border.all(color: AppColors.border),
                 boxShadow: const [
                   BoxShadow(
-                    color: Color(0x1F000000),
+                    color: AppColors.shadowSoft,
                     blurRadius: 24,
                     offset: Offset(0, 12),
                   ),
@@ -36,7 +37,7 @@ class ProcessingOverlay extends StatelessWidget {
                     height: 34,
                     child: CircularProgressIndicator(
                       strokeWidth: 3,
-                      color: Color(0xFF17181C),
+                      color: AppColors.ink,
                     ),
                   ),
                   SizedBox(height: 14),
@@ -44,7 +45,7 @@ class ProcessingOverlay extends StatelessWidget {
                     'Processing payment',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Color(0xFF17181C),
+                      color: AppColors.ink,
                       fontWeight: FontWeight.w900,
                       fontSize: 16,
                     ),
@@ -54,7 +55,7 @@ class ProcessingOverlay extends StatelessWidget {
                     'Securing your receipt...',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Color(0xFF6B707A),
+                      color: AppColors.textMuted,
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
                     ),
@@ -68,5 +69,3 @@ class ProcessingOverlay extends StatelessWidget {
     );
   }
 }
-
-

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../utils/icons.dart';
+
 class PrimaryActionButton extends StatelessWidget {
   const PrimaryActionButton({
     super.key,
     required this.label,
     required this.onPressed,
-    this.icon = Icons.arrow_forward,
+    this.icon = AppIcons.arrowForward,
   });
 
   final String label;
