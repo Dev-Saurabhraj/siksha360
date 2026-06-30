@@ -16,19 +16,21 @@ This app includes:
 
 Below are sample screens from the app:
 
-![Home Screen](./flutter_01.png)
+<p align="center">
+	<img src="./flutter_01.png" alt="Home Screen" width="300" />
+	<img src="./flutter_02.png" alt="Payment Details" width="300" />
+</p>
 
-![Payment Details](./flutter_02.png)
+<p align="center">
+	<img src="./flutter_03.png" alt="Choose Payment Method" width="300" />
+	<img src="./flutter_04.png" alt="Payment Success" width="300" />
+</p>
 
-![Choose Payment Method](./flutter_03.png)
-
-![Payment Success](./flutter_04.png)
-
-![Payment Section](./flutter_05.png)
-
-![UPI and Bank Selection](./flutter_06.png)
-
-![App Button UI](./flutter_07.png)
+<p align="center">
+	<img src="./flutter_05.png" alt="Payment Section" width="300" />
+	<img src="./flutter_06.png" alt="UPI and Bank Selection" width="300" />
+	<img src="./flutter_07.png" alt="App Button UI" width="300" />
+</p>
 
 ## 🚀 APK Download
 
@@ -129,3 +131,7 @@ flutter build ios --release
 ## 📬 Contact
 
 If you need help building or extending this project, feel free to open an issue or reach out to the maintainer.
+
+## 🔗 GitHub
+
+[Dev-Saurabhraj/siksha360](https://github.com/Dev-Saurabhraj/siksha360)
